@@ -1,5 +1,7 @@
 import React from 'react';
 import '../static/styles.css';
+import Topbar from './topbar';
+import { authenticate } from '../api';
 
 function LoginScreen({ t, onLogin }) {
   const [role, setRole] = React.useState("pharm");
@@ -7,6 +9,8 @@ function LoginScreen({ t, onLogin }) {
   const [password, setPassword] = React.useState("");
   const [remember, setRemember] = React.useState(true);
   const [showPwd, setShowPwd] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   const roles = [
     { id: "admin", title: t.roleAdmin, desc: t.roleAdminDesc, glyph: t.roleAdminGlyph},
@@ -14,9 +18,18 @@ function LoginScreen({ t, onLogin }) {
     { id: "nurse", title: t.roleNurse, desc: t.roleNurseDesc, glyph: t.roleNurseGlyph},
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin({ role, login: login || "и.иванов" });
+    if (busy) return;
+    setBusy(true); setError("");
+    try {
+      const { token } = await authenticate(login.trim(), password);
+      onLogin({ token, role, login: login.trim(), remember });
+    } catch (err) {
+      setError(err.status === 401 || err.status === 403 ? "Неверный логин или пароль" : (err.message || "Ошибка входа"));
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -26,20 +39,7 @@ function LoginScreen({ t, onLogin }) {
         <div className="login-bg-glow"></div>
       </div>
 
-      <header className="login-topbar">
-        <div className="brand">
-          <div className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="22" height="22">
-              <rect x="3" y="3" width="26" height="26" rx="6" fill="currentColor" opacity="0.12"/>
-              <path d="M16 8v16M8 16h16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div className="brand-text">
-            <div className="brand-name">{t.appName}</div>
-            <div className="brand-hint">{t.appHint}</div>
-          </div>
-        </div>
-      </header>
+      <Topbar t={t} />
 
       <main className="login-main">
         <section className="login-card" aria-labelledby="signin-title">
@@ -131,7 +131,11 @@ function LoginScreen({ t, onLogin }) {
               <a href="#" className="link" onClick={(e) => e.preventDefault()}>{t.forgot}</a>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block">{t.submit}</button>
+            {error && <div role="alert" style={{ color: 'var(--crit)', fontSize: 13 }}>{error}</div>}
+
+            <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
+              {busy ? '…' : t.submit}
+            </button>
           </form>
 
           <footer className="login-card-foot">
