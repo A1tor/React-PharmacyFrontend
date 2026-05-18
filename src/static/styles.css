@@ -29,7 +29,7 @@ a:hover, .link:hover { text-decoration: underline; }
   font-weight: 500; font-size: 13.5px;
 }
 .btn:hover { background: var(--bg); }
-.btn[disabled] { opacity: .55; cursor: not-allowed; }
+.btn[disabled] { opacity: .55; cursor: not-allowed;}
 .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn-primary:hover { background: #1f6f6f; border-color: #1f6f6f; }
 .btn-ghost { background: transparent; }
@@ -194,3 +194,9 @@ a:hover, .link:hover { text-decoration: underline; }
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; }
 }
+
+/* Filter popup */
+.popup-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: grid; place-items: center; z-index: 100; }
+.popup { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; min-width: 320px; max-width: 90vw; max-height: 90vh; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.popup h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.popup-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
