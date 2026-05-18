@@ -87,6 +87,16 @@ export const LANG_CONST = {
     profile: "Профиль",
     notifications: "Уведомления",
     today: "Сегодня",
+    sections: {
+      users:        "Пользователи",
+      storages:     "Склады",
+      medications:  "База лекарств",
+      requests:     "Запросы",
+      reports:      "Отчёты",
+      mainStorage:  "Основной склад",
+      deptStorages: "Склады отделений",
+      myRequests:   "Мои запросы",
+    },
   },
   en: {
     appName: "Hospital Pharmacy",
