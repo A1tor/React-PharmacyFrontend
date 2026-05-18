@@ -5,8 +5,8 @@ import { SECTIONS_BY_ROLE } from '../values/sections';
 
 export default function MainScreen({ t, user, onLogout }) {
   const sections = SECTIONS_BY_ROLE[user.role] || [];
-  const [activeId, setActiveId] = React.useState(sections[0] && sections[0].id);
-  const active = sections.find(s => s.id === activeId) || sections[0];
+  const [active, setActive] = React.useState(sections[0]);
+  const label = (id) => t.sections[id] || id;
 
   const fullName = [user.surname, user.name, user.lastname].filter(Boolean).join(' ');
   const initial = (user.name || user.surname || '?').charAt(0).toUpperCase();
@@ -18,14 +18,14 @@ export default function MainScreen({ t, user, onLogout }) {
       <aside className="sidebar">
         <Topbar t={t} />
         <nav className="sidebar-nav">
-          {sections.map(s => (
+          {sections.map(id => (
             <button
-              key={s.id}
+              key={id}
               type="button"
-              className={`nav-item ${active && active.id === s.id ? 'active' : ''}`}
-              onClick={() => setActiveId(s.id)}
+              className={`nav-item ${active === id ? 'active' : ''}`}
+              onClick={() => setActive(id)}
             >
-              <span>{s.label}</span>
+              <span>{label(id)}</span>
             </button>
           ))}
         </nav>
@@ -43,7 +43,7 @@ export default function MainScreen({ t, user, onLogout }) {
       <div className="main-col">
         <header className="topbar">
           <div className="page-title">
-            <h1>{active ? active.label : ''}</h1>
+            <h1>{active ? label(active) : ''}</h1>
           </div>
           <div className="topbar-actions">
             <button type="button" className="btn btn-ghost" onClick={onLogout}>{t.logout}</button>
