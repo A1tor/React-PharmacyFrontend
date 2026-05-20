@@ -37,6 +37,22 @@ export const ENTITY_FILTERS = {
   request: ['creatorId', 'status', 'creationDateFrom', 'creationDateTo', 'productName'],
 };
 
+// Fields shown in the "Add" popup per entity (matches *CreateDto DTOs).
+export const ENTITY_CREATE_FIELDS = {
+  user:    ['username', 'password', 'name', 'surname', 'lastname', 'role', 'linkedStorageId'],
+  storage: ['name'],
+  product: ['name', 'productType', 'description', 'isRequiredRecipe', 'manufacturer', 'countryId'],
+  request: ['sourceBatchId', 'targetBatchId', 'targetStorageId', 'count'],
+};
+
+// Fields shown in the "Edit" popup per entity (matches *UpdateDto DTOs, minus id).
+export const ENTITY_EDIT_FIELDS = {
+  user:    ['name', 'surname', 'lastname', 'password', 'linkedStorageId'],
+  storage: ['name'],
+  product: ['name', 'description', 'isRequiredRecipe', 'manufacturer', 'countryId'],
+  request: ['status'],
+};
+
 // Per-field widget config. Used by both filter and edit popups.
 //   { combo: 'country' }       -> ComboBox loading from GET /country?name=...
 //   { type: 'password' }       -> <input type="password">
@@ -44,7 +60,9 @@ export const ENTITY_FILTERS = {
 // Fields without an entry fall back to a plain text input.
 export const FIELD_CONFIG = {
   countryOfOriginId: { combo: 'country' },
+  countryId:         { combo: 'country' },
   linkedStorageId:   { combo: 'storage' },
+  targetStorageId:   { combo: 'storage' },
   creatorId:         { combo: 'user' },
   creationDateFrom:  { type: 'date' },
   creationDateTo:    { type: 'date' },

@@ -122,6 +122,12 @@ export const LANG_CONST = {
       creatorId:         "Создатель (id)",
       creationDateFrom:  "Создан с",
       creationDateTo:    "Создан по",
+      password:          "Пароль",
+      countryId:         "Страна",
+      sourceBatchId:     "Партия источника",
+      targetBatchId:     "Партия назначения",
+      targetStorageId:   "Склад назначения",
+      count:             "Количество",
     },
     // Common backend enum / boolean values.
     values: {
@@ -135,6 +141,8 @@ export const LANG_CONST = {
     noData:  "Нет данных",
     cancel:  "Отмена",
     save:    "Сохранить",
+    add:     "Добавить",
+    edit:    "Редактировать",
   },
   en: {
     appName: "Hospital Pharmacy",

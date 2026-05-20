@@ -1,12 +1,14 @@
 import React from 'react';
 import '../static/styles.css';
 import Topbar from './topbar';
-import { SECTIONS_BY_ROLE, SECTION_ENTITY, ENTITY_FIELDS, ENTITY_FILTERS, FIELD_CONFIG } from '../values/sections';
-import { getAll, send } from '../api';
+import { SECTIONS_BY_ROLE, SECTION_ENTITY, ENTITY_FIELDS, ENTITY_FILTERS, ENTITY_CREATE_FIELDS, ENTITY_EDIT_FIELDS, FIELD_CONFIG } from '../values/sections';
+import { getAll, getOne, send } from '../api';
 import FormPopup from './formPopup';
 
 const PROFILE_FIELDS = ['name', 'surname', 'lastname', 'password'];
 const PROFILE_CONFIG = { ...FIELD_CONFIG, password: { type: 'password' } };
+// Same widget config as filters, plus password masking for the create-user form.
+const CREATE_CONFIG  = { ...FIELD_CONFIG, password: { type: 'password' } };
 
 const cell = (v, t) => {
   if (v == null) return '—';
@@ -25,11 +27,43 @@ export default function MainScreen({ t, user, onLogout }) {
   const [filters, setFilters] = React.useState({});
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [editValues, setEditValues] = React.useState(null);
+  const [refresh, setRefresh] = React.useState(0);
 
   const saveProfile = async (values) => {
     try {
       await send('user', 'PUT', { id: user.id, ...values });
       setProfileOpen(false);
+    } catch (e) {
+      alert(e.message || 'Ошибка');
+    }
+  };
+
+  const addEntity = async (values) => {
+    try {
+      await send(entity, 'POST', values);
+      setAddOpen(false);
+      setRefresh(r => r + 1);
+    } catch (e) {
+      alert(e.message || 'Ошибка');
+    }
+  };
+
+  const startEdit = async (row) => {
+    try {
+      const full = await getOne(entity, row.id);
+      setEditValues({ ...row, ...full });        // merge: row first, full overrides
+    } catch (e) {
+      alert(e.message || 'Ошибка');
+    }
+  };
+
+  const saveEdit = async (values) => {
+    try {
+      await send(entity, 'PUT', { id: editValues.id, ...values });
+      setEditValues(null);
+      setRefresh(r => r + 1);
     } catch (e) {
       alert(e.message || 'Ошибка');
     }
@@ -45,10 +79,14 @@ export default function MainScreen({ t, user, onLogout }) {
       .then(res => { if (alive) { setRows(res.content || res || []); setStatus(''); } })
       .catch(err => { if (alive) { setRows([]); setStatus(err.message || 'Ошибка'); } });
     return () => { alive = false; };
-  }, [entity, filters]);
+  }, [entity, filters, refresh]);
 
   const cols = ENTITY_FIELDS[entity] || [];
   const filterFields = ENTITY_FILTERS[entity] || [];
+  const createFields = ENTITY_CREATE_FIELDS[entity] || [];
+  const editFields   = ENTITY_EDIT_FIELDS[entity] || [];
+  const editable     = editFields.length > 0;
+  const colSpan      = Math.max(cols.length + (editable ? 1 : 0), 1);
 
   const fullName = [user.surname, user.name, user.lastname].filter(Boolean).join(' ');
   const initial = (user.name || user.surname || '?').charAt(0).toUpperCase();
@@ -89,28 +127,48 @@ export default function MainScreen({ t, user, onLogout }) {
         </header>
 
         <div className="content">
-          {filterFields.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setFilterOpen(true)}>{t.filters}</button>
+          {(filterFields.length > 0 || createFields.length > 0) && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              {filterFields.length > 0 && (
+                <button type="button" className="btn btn-ghost" onClick={() => setFilterOpen(true)}>{t.filters}</button>
+              )}
+              {createFields.length > 0 && (
+                <button type="button" className="btn btn-primary" onClick={() => setAddOpen(true)}>{t.add}</button>
+              )}
             </div>
           )}
           <br/>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
-                <tr>{cols.map(c => <th key={c}>{t.fields[c] || c}</th>)}</tr>
+                <tr>
+                  {cols.map(c => <th key={c}>{t.fields[c] || c}</th>)}
+                  {editable && <th style={{ width: 36 }} aria-label={t.edit}></th>}
+                </tr>
               </thead>
               <tbody>
                 {status && (
-                  <tr><td colSpan={Math.max(cols.length, 1)} style={{ textAlign: 'center', color: 'var(--ink-3)' }}>
+                  <tr><td colSpan={colSpan} style={{ textAlign: 'center', color: 'var(--ink-3)' }}>
                     {status === 'loading' ? t.loading : status}
                   </td></tr>
                 )}
                 {!status && rows.map((row, i) => (
-                  <tr key={row.id ?? i}>{cols.map(c => <td key={c}>{cell(row[c], t)}</td>)}</tr>
+                  <tr key={row.id ?? i}>
+                    {cols.map(c => <td key={c}>{cell(row[c], t)}</td>)}
+                    {editable && (
+                      <td style={{ textAlign: 'right' }}>
+                        <button type="button" className="icon-btn" title={t.edit} onClick={() => startEdit(row)}>
+                          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z"/>
+                            <path d="M9.5 3.5l3 3"/>
+                          </svg>
+                        </button>
+                      </td>
+                    )}
+                  </tr>
                 ))}
                 {!status && !rows.length && (
-                  <tr><td colSpan={Math.max(cols.length, 1)} style={{ textAlign: 'center', color: 'var(--ink-3)' }}>{t.noData}</td></tr>
+                  <tr><td colSpan={colSpan} style={{ textAlign: 'center', color: 'var(--ink-3)' }}>{t.noData}</td></tr>
                 )}
               </tbody>
             </table>
@@ -141,6 +199,32 @@ export default function MainScreen({ t, user, onLogout }) {
           submitLabel={t.save}
           onCancel={() => setProfileOpen(false)}
           onApply={saveProfile}
+        />
+      )}
+
+      {addOpen && (
+        <FormPopup
+          t={t}
+          title={t.add}
+          fields={createFields}
+          initial={{}}
+          config={CREATE_CONFIG}
+          submitLabel={t.add}
+          onCancel={() => setAddOpen(false)}
+          onApply={addEntity}
+        />
+      )}
+
+      {editValues && (
+        <FormPopup
+          t={t}
+          title={t.edit}
+          fields={editFields}
+          initial={editValues}
+          config={CREATE_CONFIG}
+          submitLabel={t.save}
+          onCancel={() => setEditValues(null)}
+          onApply={saveEdit}
         />
       )}
     </div>
