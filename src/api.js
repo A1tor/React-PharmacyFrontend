@@ -1,25 +1,20 @@
-// Tiny API + auth layer. Every authenticated request goes through apiFetch.
-const KEY = 'auth';
+// Tiny API + auth layer.
+// Token lives in memory only — never persisted.
+// Credentials are persisted only when "remember" is on, and only to auto-login next visit.
+const CREDS_KEY = 'creds';
+let token = null;
 
-function read() {
+export const getToken   = () => token;
+export const setToken   = (t) => { token = t; };
+export const clearToken = () => { token = null; };
+
+export const setCreds = (creds) => localStorage.setItem(CREDS_KEY, JSON.stringify(creds));
+export const clearCreds = () => localStorage.removeItem(CREDS_KEY);
+export function getCreds() {
   try {
-    const raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY);
+    const raw = localStorage.getItem(CREDS_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
-}
-
-export const getAuth = () => read();
-export const getToken = () => { const a = read(); return a && a.token; };
-
-export function setAuth(auth, remember) {
-  const a = JSON.stringify(auth);
-  (remember ? localStorage : sessionStorage).setItem(KEY, a);
-  (remember ? sessionStorage : localStorage).removeItem(KEY);
-}
-
-export function clearAuth() {
-  localStorage.removeItem(KEY);
-  sessionStorage.removeItem(KEY);
 }
 
 async function apiFetch(path, opts = {}) {
