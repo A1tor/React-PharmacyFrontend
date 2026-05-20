@@ -1,12 +1,12 @@
 import React from 'react';
 import '../static/styles.css';
 import Topbar from './topbar';
-import { SECTIONS_BY_ROLE, SECTION_ENTITY, ENTITY_FIELDS, ENTITY_FILTERS } from '../values/sections';
+import { SECTIONS_BY_ROLE, SECTION_ENTITY, ENTITY_FIELDS, ENTITY_FILTERS, FIELD_CONFIG } from '../values/sections';
 import { getAll, send } from '../api';
 import FormPopup from './formPopup';
 
 const PROFILE_FIELDS = ['name', 'surname', 'lastname', 'password'];
-const PROFILE_TYPES  = { password: 'password' };
+const PROFILE_CONFIG = { ...FIELD_CONFIG, password: { type: 'password' } };
 
 const cell = (v, t) => {
   if (v == null) return '—';
@@ -124,6 +124,7 @@ export default function MainScreen({ t, user, onLogout }) {
           title={t.filters}
           fields={filterFields}
           initial={filters}
+          config={FIELD_CONFIG}
           submitLabel={t.apply}
           onCancel={() => setFilterOpen(false)}
           onApply={(v) => { setFilters(v); setFilterOpen(false); }}
@@ -136,7 +137,7 @@ export default function MainScreen({ t, user, onLogout }) {
           title={t.profile}
           fields={PROFILE_FIELDS}
           initial={{ name: user.name, surname: user.surname, lastname: user.lastname }}
-          types={PROFILE_TYPES}
+          config={PROFILE_CONFIG}
           submitLabel={t.save}
           onCancel={() => setProfileOpen(false)}
           onApply={saveProfile}

@@ -2,9 +2,9 @@
 // Labels resolve from `t.sections[id]` in languageConstants.
 
 export const SECTIONS_BY_ROLE = {
-  admin: ['users', 'storages', 'medications', 'requests', 'reports'],
-  pharm: ['mainStorage', 'deptStorages', 'requests', 'reports'],
-  nurse: ['mainStorage', 'deptStorages', 'myRequests'],
+  ROLE_ADMIN: ['users', 'storages', 'medications', 'requests', 'reports'],
+  ROLE_PHARMACIST: ['mainStorage', 'deptStorages', 'requests', 'reports'],
+  ROLE_NURSE: ['mainStorage', 'deptStorages', 'myRequests'],
 };
 
 // Section -> backend entity name (used with getAll). Sections with no entity
@@ -35,4 +35,17 @@ export const ENTITY_FILTERS = {
   storage: ['name'],
   product: ['name', 'productType', 'countryOfOriginId', 'manufacturer'],
   request: ['creatorId', 'status', 'creationDateFrom', 'creationDateTo', 'productName'],
+};
+
+// Per-field widget config. Used by both filter and edit popups.
+//   { combo: 'country' }       -> ComboBox loading from GET /country?name=...
+//   { type: 'password' }       -> <input type="password">
+//   { type: 'date' }           -> <input type="date">
+// Fields without an entry fall back to a plain text input.
+export const FIELD_CONFIG = {
+  countryOfOriginId: { combo: 'country' },
+  linkedStorageId:   { combo: 'storage' },
+  creatorId:         { combo: 'user' },
+  creationDateFrom:  { type: 'date' },
+  creationDateTo:    { type: 'date' },
 };

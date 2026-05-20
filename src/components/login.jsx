@@ -4,7 +4,7 @@ import Topbar from './topbar';
 import { authenticate } from '../api';
 
 function LoginScreen({ t, onLogin }) {
-  const [role, setRole] = React.useState("pharm");
+  const [role, setRole] = React.useState(localStorage.getItem("lastRole") || "ROLE_PHARMACIST");
   const [login, setLoginVal] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [remember, setRemember] = React.useState(true);
@@ -13,9 +13,9 @@ function LoginScreen({ t, onLogin }) {
   const [error, setError] = React.useState("");
 
   const roles = [
-    { id: "admin", title: t.roleAdmin, desc: t.roleAdminDesc, glyph: t.roleAdminGlyph},
-    { id: "pharm", title: t.rolePharm, desc: t.rolePharmDesc, glyph: t.rolePharmGlyph},
-    { id: "nurse", title: t.roleNurse, desc: t.roleNurseDesc, glyph: t.roleNurseGlyph},
+    { id: "ROLE_ADMIN", title: t.roleAdmin, desc: t.roleAdminDesc, glyph: t.roleAdminGlyph},
+    { id: "ROLE_PHARMACIST", title: t.rolePharm, desc: t.rolePharmDesc, glyph: t.rolePharmGlyph},
+    { id: "ROLE_NURSE", title: t.roleNurse, desc: t.roleNurseDesc, glyph: t.roleNurseGlyph},
   ];
 
   const handleSubmit = async (e) => {
@@ -23,8 +23,9 @@ function LoginScreen({ t, onLogin }) {
     if (busy) return;
     setBusy(true); setError("");
     try {
-      const { token } = await authenticate(login.trim(), password);
-      onLogin({ token, role, login: login.trim(), remember });
+      const { token } = await authenticate(login.trim(), password, role);
+      localStorage.setItem("lastRole", role);
+      onLogin({ token, role, login: login.trim(), password, remember });
     } catch (err) {
       setError(err.status === 401 || err.status === 403 ? "Неверный логин или пароль" : (err.message || "Ошибка входа"));
     } finally {

@@ -4,21 +4,44 @@ import reportWebVitals from './reportWebVitals';
 import LoginScreen from './components/login';
 import MainScreen from './components/main';
 import { LANG_CONST } from './values/languageConstants';
-import { getAuth, setAuth, clearAuth } from './api';
+import { authenticate, getCreds, setCreds, clearCreds, setToken, clearToken } from './api';
 
 const t = LANG_CONST.ru;
 
-function App() {
-  const [user, setUser] = React.useState(() => getAuth());
+// Mock profile fields until /user/{id} is wired up.
+const profile = (extras) => ({ name: 'Иван', surname: 'Иванов', lastname: 'Иванович', ...extras });
 
-  const handleLogin = ({ token, role, login, remember }) => {
-    // Mock profile fields until /user/{id} is wired up.
-    const u = { token, role, login, name: 'Иван', surname: 'Иванов', lastname: 'Иванович' };
-    setAuth(u, remember);
-    setUser(u);
+function App() {
+  const [user, setUser]       = React.useState(null);
+  const [booting, setBooting] = React.useState(true);
+
+  // Auto-login from saved creds (if any).
+  React.useEffect(() => {
+    const c = getCreds();
+    if (!c) { setBooting(false); return; }
+    authenticate(c.login, c.password, c.role)
+      .then(({ token: tok }) => {
+        setToken(tok);
+        setUser(profile({ token: tok, role: c.role, login: c.login }));
+      })
+      .catch(() => clearCreds())
+      .finally(() => setBooting(false));
+  }, []);
+
+  const handleLogin = ({ token: tok, role, login, password, remember }) => {
+    setToken(tok);
+    if (remember) setCreds({ login, password, role });
+    else clearCreds();
+    setUser(profile({ token: tok, role, login }));
   };
 
-  const handleLogout = () => { clearAuth(); setUser(null); };
+  const handleLogout = () => {
+    clearToken();
+    clearCreds();
+    setUser(null);
+  };
+
+  if (booting) return null;
 
   return user
     ? <MainScreen t={t} user={user} onLogout={handleLogout} />

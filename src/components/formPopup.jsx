@@ -1,12 +1,31 @@
 import React from 'react';
+import ComboBox from './comboBox';
 
-// Reusable popup with a flat list of input fields and Cancel / Apply buttons.
-// Labels resolve from t.fields. Per-field input type via the `types` map.
+// Reusable popup with a flat list of fields and Cancel / Apply buttons.
+// Labels resolve from t.fields. Per-field widget via the `config` map:
+//   { combo: '<entity>' }  -> ComboBox
+//   { type: '<html-type>' } -> <input type="...">
+//   undefined              -> plain text input
 export default function FormPopup({
-  t, title, fields, initial, submitLabel, types = {}, onApply, onCancel,
+  t, title, fields, initial, submitLabel, config = {}, onApply, onCancel,
 }) {
   const [values, setValues] = React.useState(initial || {});
   const set = (k, v) => setValues(prev => ({ ...prev, [k]: v }));
+
+  const renderField = (k) => {
+    const cfg = config[k] || {};
+    if (cfg.combo) {
+      return <ComboBox entity={cfg.combo} value={values[k]} onChange={v => set(k, v)} t={t} />;
+    }
+    return (
+      <input
+        id={`f-${k}`}
+        type={cfg.type || 'text'}
+        value={values[k] || ''}
+        onChange={e => set(k, e.target.value)}
+      />
+    );
+  };
 
   return (
     <div className="popup-scrim" onClick={onCancel}>
@@ -15,12 +34,7 @@ export default function FormPopup({
         {fields.map(k => (
           <div key={k} className="field">
             <label htmlFor={`f-${k}`}>{t.fields[k] || k}</label>
-            <input
-              id={`f-${k}`}
-              type={types[k] || 'text'}
-              value={values[k] || ''}
-              onChange={e => set(k, e.target.value)}
-            />
+            {renderField(k)}
           </div>
         ))}
         <div className="popup-actions">
