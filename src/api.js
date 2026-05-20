@@ -73,5 +73,5 @@ export const getOne = (entity, id) => request(`/${entity}/${id}`);
 export const send = (entity, method, body, id) =>
   request(id != null ? `/${entity}/${id}` : `/${entity}`, { method, body });
 
-export const authenticate = (username, password) =>
-  request('/auth/authenticate', { method: 'POST', body: { username, password } });
+export const authenticate = (username, password, role) =>
+  request('/auth/authenticate', { method: 'POST', body: { username, password, role } });
