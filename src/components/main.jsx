@@ -5,7 +5,7 @@ import { SECTIONS_BY_ROLE, SECTION_ENTITY, ENTITY_FIELDS, ENTITY_FILTERS, ENTITY
 import { getAll, getOne, send } from '../api';
 import FormPopup from './formPopup';
 
-const PROFILE_FIELDS = ['name', 'surname', 'lastname', 'password'];
+const PROFILE_FIELDS = ['name', 'middlename', 'lastname', 'password'];
 const PROFILE_CONFIG = { ...FIELD_CONFIG, password: { type: 'password' } };
 // Same widget config as filters, plus password masking for the create-user form.
 const CREATE_CONFIG  = { ...FIELD_CONFIG, password: { type: 'password' } };
@@ -16,7 +16,7 @@ const cell = (v, t) => {
   return t.values[String(v)] || String(v);
 };
 
-export default function MainScreen({ t, user, onLogout }) {
+export default function MainScreen({ t, user, onLogout, onUserUpdate }) {
   const sections = SECTIONS_BY_ROLE[user.role] || [];
   const [active, setActive] = React.useState(sections[0]);
   const label = (id) => t.sections[id] || id;
@@ -33,8 +33,10 @@ export default function MainScreen({ t, user, onLogout }) {
 
   const saveProfile = async (values) => {
     try {
-      await send('user', 'PUT', { id: user.id, ...values });
+      const updated = await send('user', 'PUT', { id: user.id, ...values });
+      if (updated && onUserUpdate) onUserUpdate(updated);
       setProfileOpen(false);
+      if (entity === 'user') setRefresh(r => r + 1);
     } catch (e) {
       alert(e.message || 'Ошибка');
     }
@@ -88,8 +90,8 @@ export default function MainScreen({ t, user, onLogout }) {
   const editable     = editFields.length > 0;
   const colSpan      = Math.max(cols.length + (editable ? 1 : 0), 1);
 
-  const fullName = [user.surname, user.name, user.lastname].filter(Boolean).join(' ');
-  const initial = (user.name || user.surname || '?').charAt(0).toUpperCase();
+  const fullName = [user.middlename, user.name, user.lastname].filter(Boolean).join(' ');
+  const initial = (user.name || user.middlename || '?').charAt(0).toUpperCase();
 
   return (
     <div className="app-shell">
@@ -194,7 +196,7 @@ export default function MainScreen({ t, user, onLogout }) {
           t={t}
           title={t.profile}
           fields={PROFILE_FIELDS}
-          initial={{ name: user.name, surname: user.surname, lastname: user.lastname }}
+          initial={{ name: user.name, middlename: user.middlename, lastname: user.lastname }}
           config={PROFILE_CONFIG}
           submitLabel={t.save}
           onCancel={() => setProfileOpen(false)}

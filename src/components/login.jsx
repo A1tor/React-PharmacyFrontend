@@ -23,9 +23,9 @@ function LoginScreen({ t, onLogin }) {
     if (busy) return;
     setBusy(true); setError("");
     try {
-      const { token } = await authenticate(login.trim(), password, role);
+      const { token, userData } = await authenticate(login.trim(), password, role);
       localStorage.setItem("lastRole", role);
-      onLogin({ token, role, login: login.trim(), password, remember });
+      onLogin({ token, userData, role, login: login.trim(), password, remember });
     } catch (err) {
       setError(err.status === 401 || err.status === 403 ? "Неверный логин или пароль" : (err.message || "Ошибка входа"));
     } finally {

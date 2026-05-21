@@ -101,7 +101,7 @@ export const LANG_CONST = {
     fields: {
       username:          "Логин",
       name:              "Наименование",
-      surname:           "Фамилия",
+      middlename:           "Фамилия",
       lastname:          "Отчество",
       role:              "Роль",
       linkedStorageId:   "Склад",

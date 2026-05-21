@@ -22,7 +22,7 @@ export const SECTION_ENTITY = {
 // Columns per entity (id and image fields excluded). Used to render headers
 // even when the request fails or returns zero rows.
 export const ENTITY_FIELDS = {
-  user:    ['username', 'name', 'surname', 'lastname', 'role', 'linkedStorageId'],
+  user:    ['username', 'name', 'middlename', 'lastname', 'role', 'linkedStorageId'],
   storage: ['name', 'isPharmacyStorage'],
   product: ['name', 'description', 'isRequiredRecipe', 'manufacturer', 'countryName'],
   request: ['number', 'creatorName', 'handlerName', 'status', 'creationDate', 'productName', 'productCount'],
@@ -39,7 +39,7 @@ export const ENTITY_FILTERS = {
 
 // Fields shown in the "Add" popup per entity (matches *CreateDto DTOs).
 export const ENTITY_CREATE_FIELDS = {
-  user:    ['username', 'password', 'name', 'surname', 'lastname', 'role', 'linkedStorageId'],
+  user:    ['username', 'password', 'name', 'middlename', 'lastname', 'role', 'linkedStorageId'],
   storage: ['name'],
   product: ['name', 'productType', 'description', 'isRequiredRecipe', 'manufacturer', 'countryId'],
   request: ['sourceBatchId', 'targetBatchId', 'targetStorageId', 'count'],
@@ -47,7 +47,7 @@ export const ENTITY_CREATE_FIELDS = {
 
 // Fields shown in the "Edit" popup per entity (matches *UpdateDto DTOs, minus id).
 export const ENTITY_EDIT_FIELDS = {
-  user:    ['name', 'surname', 'lastname', 'password', 'linkedStorageId'],
+  user:    ['name', 'middlename', 'lastname', 'password', 'linkedStorageId'],
   storage: ['name'],
   product: ['name', 'description', 'isRequiredRecipe', 'manufacturer', 'countryId'],
   request: ['status'],
