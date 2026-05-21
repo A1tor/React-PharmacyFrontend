@@ -1,0 +1,12 @@
+node_modules
+build
+.git
+.gitignore
+.env.local
+.env.*.local
+*.log
+.vscode
+.idea
+README.md
+Dockerfile
+.dockerignore
