@@ -29,8 +29,12 @@ async function apiFetch(path, opts = {}) {
     },
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    const err = new Error(text || `HTTP ${res.status}`);
+    let msg = '';
+    try {
+      const body = await res.json();
+      msg = body.message || body.detail || '';
+    } catch { /* body wasn't JSON */ }
+    const err = new Error(msg || `HTTP ${res.status}`);
     err.status = res.status;
     throw err;
   }

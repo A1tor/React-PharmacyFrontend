@@ -32,43 +32,31 @@ export default function MainScreen({ t, user, onLogout, onUserUpdate }) {
   const [refresh, setRefresh] = React.useState(0);
 
   const saveProfile = async (values) => {
-    try {
-      const updated = await send('user', 'PUT', { id: user.id, ...values });
-      if (updated && onUserUpdate) onUserUpdate(updated);
-      setProfileOpen(false);
-      if (entity === 'user') setRefresh(r => r + 1);
-    } catch (e) {
-      alert(e.message || 'Ошибка');
-    }
+    const updated = await send('user', 'PUT', { id: user.id, ...values });
+    if (updated && onUserUpdate) onUserUpdate(updated);
+    setProfileOpen(false);
+    if (entity === 'user') setRefresh(r => r + 1);
   };
 
   const addEntity = async (values) => {
-    try {
-      await send(entity, 'POST', values);
-      setAddOpen(false);
-      setRefresh(r => r + 1);
-    } catch (e) {
-      alert(e.message || 'Ошибка');
-    }
+    await send(entity, 'POST', values);
+    setAddOpen(false);
+    setRefresh(r => r + 1);
   };
 
   const startEdit = async (row) => {
     try {
       const full = await getOne(entity, row.id);
-      setEditValues({ ...row, ...full });        // merge: row first, full overrides
+      setEditValues({ ...row, ...full });
     } catch (e) {
-      alert(e.message || 'Ошибка');
+      alert(e.message || 'Ошибка');         // not a popup-driven action; alert is fine here
     }
   };
 
   const saveEdit = async (values) => {
-    try {
-      await send(entity, 'PUT', { id: editValues.id, ...values });
-      setEditValues(null);
-      setRefresh(r => r + 1);
-    } catch (e) {
-      alert(e.message || 'Ошибка');
-    }
+    await send(entity, 'PUT', { id: editValues.id, ...values });
+    setEditValues(null);
+    setRefresh(r => r + 1);
   };
 
   React.useEffect(() => { setFilters({}); }, [entity]);   // reset filters on section change

@@ -53,8 +53,20 @@ export const ENTITY_EDIT_FIELDS = {
   request: ['status'],
 };
 
+// Hardcoded enum values reused below.
+const PRODUCT_TYPES = [
+  'TABLETS', 'POWDER', 'GRANULES', 'CAPSULES', 'PILLS',
+  'OINTMENT', 'GEL', 'SUPPOSITORIES', 'PLASTER', 'SYRUP',
+  'SOLUTION', 'DROPS', 'MIXTURE', 'EXTRACT', 'AEROSOL', 'SPRAY',
+];
+
+const YES_NO = [
+  true, false
+];
+
 // Per-field widget config. Used by both filter and edit popups.
 //   { combo: 'country' }       -> ComboBox loading from GET /country?name=...
+//   { options: [...] }         -> ComboBox with hardcoded values
 //   { type: 'password' }       -> <input type="password">
 //   { type: 'date' }           -> <input type="date">
 // Fields without an entry fall back to a plain text input.
@@ -66,4 +78,6 @@ export const FIELD_CONFIG = {
   creatorId:         { combo: 'user' },
   creationDateFrom:  { type: 'date' },
   creationDateTo:    { type: 'date' },
+  productType:       { options: PRODUCT_TYPES },
+  isRequiredRecipe:       { options: YES_NO },
 };

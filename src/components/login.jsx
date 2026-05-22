@@ -132,7 +132,7 @@ function LoginScreen({ t, onLogin }) {
               <a href="#" className="link" onClick={(e) => e.preventDefault()}>{t.forgot}</a>
             </div>
 
-            {error && <div role="alert" style={{ color: 'var(--crit)', fontSize: 13 }}>{error}</div>}
+            {error && <div className="popup-error" role="alert">{error}</div>}
 
             <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
               {busy ? '…' : t.submit}
